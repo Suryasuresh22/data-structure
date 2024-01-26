@@ -1,0 +1,227 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+};
+
+struct Node* head = NULL;
+
+struct Node* createNode(int data) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = data;
+    newNode->prev = NULL;
+    newNode->next = NULL;
+    return newNode;
+}
+
+void insertAtBeginning(int data) {
+    struct Node* newNode = createNode(data);
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        newNode->next = head;
+        head->prev = newNode;
+        head = newNode;
+    }
+}
+
+void insertAtEnd(int data) {
+    struct Node* newNode = createNode(data);
+    if (head == NULL) {
+        head = newNode;
+    } else {
+        struct Node* temp = head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newNode;
+        newNode->prev = temp;
+    }
+}
+
+void insertAtPosition(int data, int position) {
+    if (position <= 0) {
+        printf("Invalid position\n");
+        return;
+    }
+    if (position == 1) {
+        insertAtBeginning(data);
+        return;
+    }
+    struct Node* newNode = createNode(data);
+    struct Node* temp = head;
+    int currentPosition = 1;
+    while (temp != NULL && currentPosition < position - 1) {
+        temp = temp->next;
+        currentPosition++;
+    }
+    if (temp == NULL) {
+        printf("Invalid position\n");
+        return;
+    }
+    newNode->next = temp->next;
+    if (temp->next != NULL) {
+        temp->next->prev = newNode;
+    }
+    newNode->prev = temp;
+    temp->next = newNode;
+}
+
+int deleteAtBeginning() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return -1;
+    }
+    struct Node* temp = head;
+    int data = temp->data;
+    head = head->next;
+    if (head != NULL) {
+        head->prev = NULL;
+    }
+    free(temp);
+    return data;
+}
+
+int deleteAtEnd() {
+    if (head == NULL) {
+        printf("List is empty.\n");
+        return -1;
+    }
+    struct Node* temp = head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    int data = temp->data;
+    if (temp->prev != NULL) {
+        temp->prev->next = NULL;
+    } else {
+        head = NULL;
+    }
+    free(temp);
+    return data;
+}
+
+int deleteAtPosition(int position) {
+    if (position <= 0) {
+        printf("Invalid position\n");
+        return -1;
+    }
+    if (position == 1) {
+        return deleteAtBeginning();
+    }
+    struct Node* temp = head;
+    int currentPosition = 1;
+    while (temp != NULL && currentPosition < position) {
+        temp = temp->next;
+        currentPosition++;
+    }
+    if (temp == NULL) {
+        printf("Invalid position\n");
+        return -1;
+    }
+    if (temp->next != NULL) {
+        temp->next->prev = temp->prev;
+    }
+    temp->prev->next = temp->next;
+    int data = temp->data;
+    free(temp);
+ 
+    return data;
+}
+
+int search(int element) {
+    struct Node* temp = head;
+    int position = 1;
+    while (temp != NULL) {
+        if (temp->data == element) {
+            return position;
+        }
+        temp = temp->next;
+        position++;
+    }
+    return -1;
+}
+
+void printForward() {
+    struct Node* temp = head;
+    printf("Displaying list in forward direction: ");
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->next;
+    }
+    printf("\n");
+}
+
+void printReverse() {
+    struct Node* temp = head;
+    if (temp == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    printf("Displaying list in reverse direction: ");
+    while (temp != NULL) {
+        printf("%d ", temp->data);
+        temp = temp->prev;
+    }
+    printf("\n");
+}
+
+int main() {
+    printf("List is empty.\n");
+    int val;
+ 
+
+ 
+    printf("Enter value to insert at the beginning: ");
+    scanf("%d", &val);
+    insertAtBeginning(val);
+    printf("List after insertion at the beginning: ");
+    printForward();
+
+    printf("Enter value to insert at the end: ");
+    scanf("%d", &val);
+    insertAtEnd(val);
+    printf("List after insertion at the end: ");
+    printForward();
+
+    printf("Enter value to insert at the end: ");
+    scanf("%d", &val);
+    insertAtEnd(val);
+    printf("List after insertion at the end: ");
+    printForward();
+    printReverse();
+
+    printf("Enter value to insert at position 2: ");
+    scanf("%d", &val);
+    insertAtPosition(val, 2);
+    printf("List after insertion at position 2: ");
+    printForward();
+
+    printf("Deleting at the beginning.\n");
+    deleteAtBeginning();
+    printForward();
+
+    printf("Deleting at the end.\n");
+    deleteAtEnd();
+    printForward();
+
+    printf("Deleting at position 1.\n");
+    deleteAtPosition(1);
+    printForward();
+
+    int searchVal;
+    printf("Enter element to search: ");
+    scanf("%d", &searchVal);
+    int pos = search(searchVal);
+    if (pos != -1) {
+        printf("Element found at position %d.\n", pos);
+    }
+
+    return 0;
+}

@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_VERTICES 100
+struct Node {
+    int data;
+    struct Node* next;
+};
+struct Graph {
+    int V;
+    struct Node** adj_list;
+};
+struct Graph* create_graph(int vertices) {
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+    graph->V = vertices;
+    graph->adj_list = (struct Node**)malloc(vertices * sizeof(struct Node*));
+    for (int i = 0; i < vertices; ++i) {
+        graph->adj_list[i] = NULL;
+    }
+    return graph;
+}
+void add_edge(struct Graph* graph, int src, int dest) {
+    struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+    new_node->data = dest;
+    new_node->next = graph->adj_list[src];
+    graph->adj_list[src] = new_node;
+}
+void topological_sort_util(int v, int visited[], struct Graph* graph, int stack[], int* stack_index) {
+    visited[v] = 1;
+    struct Node* temp = graph->adj_list[v];
+    while (temp != NULL) {
+        int neighbor = temp->data;
+        if (!visited[neighbor]) {
+            topological_sort_util(neighbor, visited, graph, stack, stack_index);
+        }
+        temp = temp->next;
+    }
+    stack[(*stack_index)++] = v;
+}
+void topological_sort(struct Graph* graph) {
+ 
+
+    int visited[MAX_VERTICES] = {0};
+    int stack[MAX_VERTICES];
+    int stack_index = 0;
+    for (int i = 0; i < graph->V; ++i) {
+        if (!visited[i]) {
+            topological_sort_util(i, visited, graph, stack, &stack_index);
+        }
+    }
+    printf("Topological Sort: ");
+    while (stack_index > 0) {
+        printf("%d ", stack[--stack_index]);
+    }
+    printf("\n");
+}
+int main() {
+    int vertices, edges;
+    printf("Enter the number of vertices: ");
+    scanf("%d", &vertices);
+    struct Graph* graph = create_graph(vertices);
+    printf("Enter the number of edges: ");
+    scanf("%d", &edges);
+    printf("Enter the edges (source destination):\n");
+    for (int i = 0; i < edges; ++i) {
+        int src, dest;
+        scanf("%d %d", &src, &dest);
+        add_edge(graph, src, dest);
+    }
+    topological_sort(graph);
+    return 0;
+}
